@@ -11,7 +11,7 @@
     },
     "MasterVMsku": {
       "type": "string",
-      "defaultValue": "Standard_F16s_v2",
+      "defaultValue": "Standard_DS4_v2",
       "allowedValues": [
         "Standard_DS3_v2",
         "Standard_DS4_v2",
@@ -36,7 +36,7 @@
     },
     "masterImage": {
       "type": "string",
-      "defaultValue": "CentOS_7.4",
+      "defaultValue": "RHEL_7.4",
       "allowedValues": [
         "CentOS_7.4",
         "RHEL_7.4"
@@ -47,45 +47,38 @@
     },
     "adminUserName": {
       "type": "string",
+      "defaultValue": "azure-user",
       "metadata": {
         "description": "User name for the Virtual Machine."
       }
     },
     "authenticationType": {
       "type": "string",
-      "defaultValue": "password",
+      "defaultValue": "sshPublicKey",
       "allowedValues": [
-        "password",
         "sshPublicKey"
       ],
       "metadata": {
         "description": "Authentication type for the virtual machines"
       }
     },
-    "adminPassword": {
-      "type": "securestring",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Admin password for the virtual machines"
-      }
-    },
     "sshPublicKey": {
       "type": "string",
-      "defaultValue": "",
+      "defaultValue": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCdxNucB4Oju2RhmJnM6t8CT9hn0J/qb5wJes0nagoHGKNVA3mAbL6RhlhloJ1VIWPdiaVYHkqBQu9V92EFhl7E10wfxhxF8fkGPo7q+7MDcvs6XGCRGWibuf8Wumj81qnToNOj/OTEXSJn3I0QVhai/M8MjuiUZfdWrso1IJb1goSPLiZKaxAYqH/2eB6oOjPukJI3HkhAoiULm8pcpPzcVztIFWpj/6amqpb+/wmdMBKJFffqncAAL7rVoMmXhxQdtxXKx7R0uDsSD/EzN9/Z9BAvRMIwDWh2qvksVZ+i6TYDBL9msXqLGlIkMfBPJU2RjbLzZYDcr1c2+wrpG9UF imported-openssh-key",
       "metadata": {
         "description": "SSH public key that will be included on all nodes. The OpenSSH public key can be generated with tools like ssh-keygen on Linux or OS X."
       }
     },
     "dataDiskSize": {
       "type": "int",
-      "defaultValue": 128,
+      "defaultValue": 512,
       "metadata": {
         "description": "The size in GB of each of the data disks that are attached to the VM.  A RAID-0 volume is created with all data disks that is dataDiskSize * dataDiskCount in size."
       }
     },
     "nbDataDisks": {
       "type": "int",
-      "defaultValue": 8,
+      "defaultValue": 2,
       "maxValue": 16,
       "metadata": {
         "description": "The number of disks to attach to the NFS server."
@@ -93,21 +86,21 @@
     },
     "existingVNetName": {
       "type": "string",
-      "defaultValue": "",
+      "defaultValue": "VNET-nesdis-sigp",
       "metadata": {
         "description": "name of existing Virtual Network"
       }
     },
     "existingVNetResourceGroup": {
       "type": "string",
-       "defaultValue": "",
+       "defaultValue": "NOAA-NESDIS-SIGP",
       "metadata": {
         "description": "name of Resource Group for existing Virtual Network"
       }
     },
     "existingSubnetName": {
       "type": "string",
-      "defaultValue": "",
+      "defaultValue": "Subnet-Trusted1",
       "metadata": {
         "description": "name of existing Virtual Network"
       }
@@ -158,7 +151,7 @@
     
     "mastervmScripts": {
       "scriptsToDownload": [
-        "https://raw.githubusercontent.com/grandparoach/Premium-NFS-Server/master/setup.sh"
+        "https://raw.githubusercontent.com/zhifaliu/NESDIS_IAAS/master/setup.sh"
       ],
       "commandToExecute": "bash setup.sh"
     }
