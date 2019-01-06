@@ -3,7 +3,7 @@
 set -x
 
 # Shares
-NFS_DATA=/share/data
+NFS_DATA=/share/home
 mkdir -p $NFS_DATA
 chmod 777 $NFS_DATA
 
