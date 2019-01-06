@@ -39,8 +39,8 @@ get_disk_count() {
 #
 install_pkgs()
 {
-    #rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-    #yum-config-manager --enable epel
+    rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    yum-config-manager --enable epel
     yum -y install epel-release
     yum -y install nfs-utils nfs-utils-lib rpcbind mdadm 
 }
