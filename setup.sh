@@ -121,18 +121,23 @@ install_pbspro()
 {
  
 	yum install -y libXt-devel libXext
-    wget -O /mnt/CentOS_7/pbspro-server-14.1.0-13.1.x86_64.rpm https://github.com/zhifaliu/Azure_HPC/blob/master/Compute-Grid-Infra/PBSPro/pbspro-execution-14.1.0-13.1.x86_64.rpm   
 
 
-	enable_kernel_update
-	install_pkgs
+    #wget -O /mnt/CentOS_7.zip  http://wpc.23a7.iotacdn.net/8023A7/origin2/rl/PBS-Open/CentOS_7.zip
+    #unzip /mnt/CentOS_7.zip -d /mnt
+	 wget -O /tmp/pbspro-server-14.1.0-13.1.x86_64.rpm https://s3.amazonaws.com/admin-sig-codebase/PBSPRO/pbspro-server-14.1.0-13.1.x86_64.rpm   
+       
+    if is_master; then
 
-	yum install -y gcc make rpm-build libtool hwloc-devel libX11-devel libedit-devel libical-devel ncurses-devel perl postgresql-devel python-devel tcl-devel tk-devel swig expat-devel openssl-devel libXft autoconf automake expat libedit postgresql-server python sendmail tcl tk libical perl-Env perl-Switch
+		enable_kernel_update
+		install_pkgs
+
+		yum install -y gcc make rpm-build libtool hwloc-devel libX11-devel libedit-devel libical-devel compat-libical1 ncurses-devel perl postgresql-devel python-devel tcl-devel tk-devel swig expat-devel openssl-devel libXft autoconf automake expat libedit postgresql-server python sendmail tcl tk libical perl-Env perl-Switch
     
-	# Required on 7.2 as the libical lib changed
-	ln -s /usr/lib64/libical.so.1 /usr/lib64/libical.so.0
+		# Required on 7.2 as the libical lib changed
+		ln -s /usr/lib64/libical.so.1 /usr/lib64/libical.so.0
 
-	rpm -ivh --nodeps /mnt/CentOS_7/pbspro-server-14.1.0-13.1.x86_64.rpm
+	    rpm -ivh --nodeps /tmp/pbspro-server-14.1.0-13.1.x86_64.rpm
 
 
         cat > /etc/pbs.conf << EOF
@@ -161,7 +166,44 @@ EOF
 
 		# list settings
 		/opt/pbs/bin/qmgr -c 'list server'
+    else
 
+
+		yum install -y hwloc-devel expat-devel tcl-devel expat
+
+	    wget -O /tmp/pbspro-execution-14.1.0-13.1.x86_64.rpm https://s3.amazonaws.com/admin-sig-codebase/PBSPRO/pbspro-execution-14.1.0-13.1.x86_64.rpm
+	    rpm -ivh --nodeps /tmp/pbspro-execution-14.1.0-13.1.x86_64.rpm
+
+        cat > /etc/pbs.conf << EOF
+PBS_SERVER=$MASTER_HOSTNAME
+PBS_START_SERVER=0
+PBS_START_SCHED=0
+PBS_START_COMM=0
+PBS_START_MOM=1
+PBS_EXEC=/opt/pbs
+PBS_HOME=/var/spool/pbs
+PBS_CORE_LIMIT=unlimited
+PBS_SCP=/bin/scp
+EOF
+
+		echo '$clienthost '$MASTER_HOSTNAME > /var/spool/pbs/mom_priv/config
+        /etc/init.d/pbs start
+
+		# setup the self register script
+		cp pbs_selfregister.sh /etc/init.d/pbs_selfregister
+		chmod +x /etc/init.d/pbs_selfregister
+		chown root /etc/init.d/pbs_selfregister
+		chkconfig --add pbs_selfregister
+
+		# if queue name is set update the self register script
+		if [ -n "$QNAME" ]; then
+			sed -i '/qname=/ s/=.*/='$QNAME'/' /etc/init.d/pbs_selfregister
+		fi
+
+		# regist
+		/etc/init.d/pbs_selfregister start
+
+    fi
 
     echo 'export PATH=/opt/pbs/bin:$PATH' >> /etc/profile.d/pbs.sh
     echo 'export PATH=/opt/pbs/sbin:$PATH' >> /etc/profile.d/pbs.sh
