@@ -56,10 +56,18 @@
       "type": "string",
       "defaultValue": "sshPublicKey",
       "allowedValues": [
+        "password",
         "sshPublicKey"
       ],
       "metadata": {
         "description": "Authentication type for the virtual machines"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Admin password for the virtual machines"
       }
     },
     "sshPublicKey": {
