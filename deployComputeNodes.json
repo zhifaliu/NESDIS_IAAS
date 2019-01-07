@@ -14,9 +14,10 @@
     },
     "vmSize": {
       "type": "string",
-      "defaultValue": "Standard_D14_v2",
+      "defaultValue": "Standard_DS4_v2",
       "allowedValues": [
         "Standard_A1",
+        "Standard_DS4_v2",
         "Standard_D14_v2",
         "Standard_D15_v2"
       ],
@@ -26,23 +27,23 @@
     },
     "vnetResourceGroup": {
       "type": "string",
-      "defaultValue": "noaa"
+      "defaultValue": "NOAA-NESDIS-SIGP"
     },
     "vnetName": {
       "type": "string",
-      "defaultValue": "noaa-vnet"
+      "defaultValue": "VNET-nesdis-sigp"
     },
     "subnetName": {
       "type": "string",
-      "defaultValue": "default"
+      "defaultValue": "Subnet-Trusted1"
     },
     "adminUsername": {
       "type": "string",
-      "defaultValue": "sroach"
+      "defaultValue": "azure-user"
     },
     "authenticationType": {
        "type": "string",
-       "defaultValue": "password",
+       "defaultValue": "sshPublicKey",
        "allowedValues": [
            "password",
            "sshPublicKey"
@@ -56,14 +57,14 @@
     },
     "sshPublicKey": {
        "type": "string",
-       "defaultValue": "",
+       "defaultValue": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCdxNucB4Oju2RhmJnM6t8CT9hn0J/qb5wJes0nagoHGKNVA3mAbL6RhlhloJ1VIWPdiaVYHkqBQu9V92EFhl7E10wfxhxF8fkGPo7q+7MDcvs6XGCRGWibuf8Wumj81qnToNOj/OTEXSJn3I0QVhai/M8MjuiUZfdWrso1IJb1goSPLiZKaxAYqH/2eB6oOjPukJI3HkhAoiULm8pcpPzcVztIFWpj/6amqpb+/wmdMBKJFffqncAAL7rVoMmXhxQdtxXKx7R0uDsSD/EzN9/Z9BAvRMIwDWh2qvksVZ+i6TYDBL9msXqLGlIkMfBPJU2RjbLzZYDcr1c2+wrpG9UF imported-openssh-key",
        "metadata": {
            "description": "SSH public key that will be included on all nodes. The OpenSSH public key can be generated with tools like ssh-keygen on Linux or OS X."
        }
     },
     "masterHostName": {
       "type": "string",
-      "defaultValue": "nfsnoaavm"
+      "defaultValue": "sigpmaster"
     },
     "hpcUserName": {
       "type": "string",
@@ -75,9 +76,9 @@
     "baseTemplateUri": "[concat(variables('templateLocation'), 'basedeployment.json')]",
     "ImagePublisher": "OpenLogic",
     "ImageOffer": "CentOS-HPC",
-    "ImageSKU": "6.5",
+    "ImageSKU": "7.4",
     "location": "[resourceGroup().location]",
-    "finaldeployScriptURI": "https://raw.githubusercontent.com/grandparoach/NewCluster/NOAA/finaldeploy.sh"
+    "finaldeployScriptURI": "https://github.com/zhifaliu/NESDIS_IAAS/blob/master/finaldeploy.sh"
   },
   "resources": [
     {
