@@ -78,7 +78,7 @@
     "ImageOffer": "CentOS-HPC",
     "ImageSKU": "7.4",
     "location": "[resourceGroup().location]",
-    "finaldeployScriptURI": "https://github.com/zhifaliu/NESDIS_IAAS/blob/master/finaldeploy.sh"
+    "finaldeployScriptURI": "https://raw.githubusercontent.com/zhifaliu/NESDIS_IAAS/master/finaldeploy.sh"
   },
   "resources": [
     {
