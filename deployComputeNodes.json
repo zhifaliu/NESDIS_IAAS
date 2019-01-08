@@ -75,7 +75,7 @@
     "templateLocation": "https://raw.githubusercontent.com/grandparoach/NewCluster/NOAA/",
     "baseTemplateUri": "[concat(variables('templateLocation'), 'basedeployment.json')]",
     "ImagePublisher": "OpenLogic",
-    "ImageOffer": "CentOS-HPC",
+    "ImageOffer": "CentOS",
     "ImageSKU": "7.4",
     "location": "[resourceGroup().location]",
     "finaldeployScriptURI": "https://raw.githubusercontent.com/zhifaliu/NESDIS_IAAS/master/finaldeploy.sh"
