@@ -21,8 +21,8 @@ HPC_GID=7007
 #
 install_pkgs()
 {
-    pkgs="zlib zlib-devel bzip2 bzip2-devel bzip2-libs openssl openssl-devel openssl-libs gcc gcc-c++ nfs-utils rpcbind mdadm wget libX11.i686 libXext.i686 libXtst.i686 openmotif22.i686 ksh ncurses-libs.i686 compat-libf2c-34.x86_64 dos2unix"
-    yum -y install $pkgs
+    yum -y install epel-release
+    yum -y install nfs-utils nfs-utils-lib rpcbind
 }
 
 
@@ -37,7 +37,7 @@ setup_shares()
         mount -a
         mount | grep "^$MASTER_HOSTNAME:$SHARE_HOME"
         mount | grep "^$MASTER_HOSTNAME:$SHARE_DATA"
-
+        echo $MASTER_HOSTNAME >>/share/data/install.txt
 }
 
 # Adds a common HPC user to the node and configures public key SSh auth.
@@ -103,7 +103,7 @@ enable_kernel_update()
 install_pkgs()
 {
     yum -y install epel-release
-    yum -y install zlib zlib-devel bzip2 bzip2-devel bzip2-libs openssl openssl-devel openssl-libs gcc gcc-c++ nfs-utils rpcbind mdadm wget python-pip
+    yum -y install zlib zlib-devel bzip2 bzip2-devel bzip2-libs openssl openssl-devel openssl-libs gcc gcc-c++ nfs-utils rpcbind mdadm wget python-pip R
 }
 
 # Downloads and installs PBS Pro OSS on the node.
@@ -155,7 +155,7 @@ EOF
         /opt/pbs/bin/qmgr -c "set server scheduler_iteration = 120"
 
 		# add hpcuser as manager
-        /opt/pbs/bin/qmgr -c "s s managers = $PBS_MANAGER@$MASTER_HOSTNAME"
+        /opt/pbs/bin/qmgr -c "set server managers = $PBS_MANAGER@*"
 
 		# list settings
 		/opt/pbs/bin/qmgr -c 'list server'
@@ -181,6 +181,21 @@ EOF
 
 		echo '$clienthost '$MASTER_HOSTNAME > /var/spool/pbs/mom_priv/config
         /etc/init.d/pbs start
+
+		# setup the self register script
+		wget -O /tmp/pbs_selfregister.sh https://raw.githubusercontent.com/zhifaliu/NESDIS_IAAS/master/pbs_selfregister.sh
+		cp pbs_selfregister.sh /etc/init.d/pbs_selfregister
+		chmod +x /etc/init.d/pbs_selfregister
+		chown root /etc/init.d/pbs_selfregister
+		chkconfig --add pbs_selfregister
+
+		# if queue name is set update the self register script
+		if [ -n "$QNAME" ]; then
+			sed -i '/qname=/ s/=.*/='$QNAME'/' /etc/init.d/pbs_selfregister
+		fi
+
+		# register node
+		/etc/init.d/pbs_selfregister start
 
     fi
 
