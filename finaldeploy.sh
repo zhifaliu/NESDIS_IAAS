@@ -184,7 +184,7 @@ EOF
 
 		# setup the self register script
 		wget -O /tmp/pbs_selfregister.sh https://raw.githubusercontent.com/zhifaliu/NESDIS_IAAS/master/pbs_selfregister.sh
-		cp pbs_selfregister.sh /etc/init.d/pbs_selfregister
+		cp /tmp/pbs_selfregister.sh /etc/init.d/pbs_selfregister
 		chmod +x /etc/init.d/pbs_selfregister
 		chown root /etc/init.d/pbs_selfregister
 		chkconfig --add pbs_selfregister
