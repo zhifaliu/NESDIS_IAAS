@@ -11,7 +11,7 @@ SETUP_MARKER=/share/data/pbs/$nodename'_register.txt'
 case "$1" in
  'start')
     echo "adding node $nodename to queue manager"
-    touch $SETUP_MARKER
+    sudo -u $PBS_MANAGER touch $SETUP_MARKER
     sudo -u $PBS_MANAGER /opt/pbs/bin/qmgr -c "create node $nodename"
     sudo -u $PBS_MANAGER /opt/pbs/bin/qmgr -c "set node $nodename queue=$qname"
     ;;
