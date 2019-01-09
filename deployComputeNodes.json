@@ -72,7 +72,7 @@
     }
   },
   "variables": {
-    "templateLocation": "https://raw.githubusercontent.com/grandparoach/NewCluster/NOAA/",
+    "templateLocation": "https://github.com/zhifaliu/NESDIS_IAAS/blob/master/",
     "baseTemplateUri": "[concat(variables('templateLocation'), 'basedeployment.json')]",
     "ImagePublisher": "OpenLogic",
     "ImageOffer": "CentOS",
