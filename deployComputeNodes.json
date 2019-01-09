@@ -8,11 +8,11 @@
     },
     "numberOfSAs": {
       "type": "int",
-      "defaultValue": "1"
+      "defaultValue": 1
     },
     "instanceCountPerSA": {
       "type": "int",
-      "defaultValue": "2"
+      "defaultValue": 2
     },
     "vmSize": {
       "type": "string",
