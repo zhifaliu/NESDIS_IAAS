@@ -140,7 +140,7 @@
           "vmSize": "[parameters('vmSize')]"
         },
         "osProfile": {
-          "computername": "[concat(parameters('clusterName'), padLeft(copyIndex(), 2, '0'))]",
+          "computername": "[concat('', parameters('clusterName'), padLeft(copyIndex(), 2, '0'))]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]",
           "linuxConfiguration": "[variables('linuxConfiguration')]"
