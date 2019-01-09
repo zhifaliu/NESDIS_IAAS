@@ -1,7 +1,7 @@
 #!/bin/bash
 
 MASTER_HOSTNAME=$1
-MASTER_HOSTNAME=sigpmaster
+#MASTER_HOSTNAME=sigpmaster
 QNAME=batch
 PBS_MANAGER=azure-user
 # Shares
@@ -11,7 +11,7 @@ SHARE_DATA=/share/data
 
 # Hpc User
 HPC_USER=$2
-HPC_USER=hpc
+#HPC_USER=hpc
 HPC_UID=7007
 HPC_GROUP=hpc
 HPC_GID=7007
@@ -103,7 +103,7 @@ enable_kernel_update()
 install_pkgs()
 {
     yum -y install epel-release
-    yum -y install zlib zlib-devel bzip2 bzip2-devel bzip2-libs openssl openssl-devel openssl-libs gcc gcc-c++ nfs-utils rpcbind mdadm wget python-pip R
+    yum -y install R zlib zlib-devel bzip2 bzip2-devel bzip2-libs openssl openssl-devel openssl-libs gcc gcc-c++ nfs-utils rpcbind mdadm wget python-pip R
 }
 
 # Downloads and installs PBS Pro OSS on the node.
