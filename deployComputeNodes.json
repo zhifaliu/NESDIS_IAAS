@@ -7,10 +7,12 @@
       "defaultValue": "noaa"
     },
     "numberOfSAs": {
-      "type": "int"
+      "type": "int",
+      "defaultValue": "1"
     },
     "instanceCountPerSA": {
-      "type": "int"
+      "type": "int",
+      "defaultValue": "2"
     },
     "vmSize": {
       "type": "string",
@@ -72,7 +74,7 @@
     }
   },
   "variables": {
-    "templateLocation": "https://raw.githubusercontent.com/zhifaliu/NESDIS_IAAS/master/",
+    "templateLocation": "https://github.com/grandparoach/NewCluster/blob/NOAA/",
     "baseTemplateUri": "[concat(variables('templateLocation'), 'basedeployment.json')]",
     "ImagePublisher": "OpenLogic",
     "ImageOffer": "CentOS",
