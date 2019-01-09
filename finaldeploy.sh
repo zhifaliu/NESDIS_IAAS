@@ -19,10 +19,10 @@ HPC_GID=7007
 
 # Installs all required packages.
 #
-install_pkgs()
+install_pkgs_mount()
 {
     yum -y install epel-release
-    yum -y install nfs-utils nfs-utils-lib rpcbind
+    yum -y install nfs-utils nfs-utils-lib rpcbind R
 }
 
 
@@ -79,7 +79,7 @@ setup_env()
 }
 
 
-install_pkgs
+install_pkgs_mount
 setup_shares
 setup_hpc_user
 setup_env
@@ -103,7 +103,7 @@ enable_kernel_update()
 install_pkgs()
 {
     yum -y install epel-release
-    yum -y install R zlib zlib-devel bzip2 bzip2-devel bzip2-libs openssl openssl-devel openssl-libs gcc gcc-c++ nfs-utils rpcbind mdadm wget python-pip R
+    yum -y install zlib zlib-devel bzip2 bzip2-devel bzip2-libs openssl openssl-devel openssl-libs gcc gcc-c++ nfs-utils rpcbind mdadm wget python-pip R
 }
 
 # Downloads and installs PBS Pro OSS on the node.
