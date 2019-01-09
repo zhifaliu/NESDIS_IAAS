@@ -1,0 +1,174 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01-preview/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "uniquePrefix": {
+      "type": "string"
+    },
+    "clusterName": {
+      "type": "string"
+    },
+    "ImagePublisher": { 
+      "type": "string"
+    },
+    "ImageOffer": { 
+      "type": "string"
+    },
+    "ImageSKU": { 
+      "type": "string"
+    },      
+    "baseVHDURI": {
+      "type": "string"
+    },
+    "instanceCountPerSA": {
+      "type": "int"
+    },
+    "vmSize": {
+      "type": "string"
+    },
+    "vnetName": {
+      "type": "string"
+    },
+    "vnetResourceGroup": {
+      "type": "string"
+    },
+    "subnetName": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "hpcUserName": {
+      "type": "string"
+    },
+    "masterHostName": {
+      "type": "string"
+    },
+    "finaldeployScriptURI": {
+      "type": "string"
+    },
+    "adminUsername": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    },
+    "sshPublicKey": {
+        "type": "string"
+    },
+    "authenticationType": {
+        "type": "string"
+    }
+  },
+  "variables": {
+    "sshKeyPath": "[concat('/home/',parameters('adminUsername'),'/.ssh/authorized_keys')]",
+    "linuxConfiguration_sshPublicKey": {
+        "disablePasswordAuthentication": "true",
+        "ssh": {
+            "publicKeys": [
+                {
+                    "path": "[variables('sshKeyPath')]",
+                    "keyData": "[parameters('sshPublicKey')]"
+                }
+            ]
+        }
+    },
+    "linuxConfiguration_password": { },
+    "linuxConfiguration": "[variables(concat('linuxConfiguration_',parameters('authenticationType')))]"  
+  },
+  "resources": [
+    {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat('nic', parameters('clusterName'), padLeft(copyindex(), 2, '0'))]",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "[concat('nicLoop', parameters('clusterName'))]",
+        "count": "[parameters('instanceCountPerSA')]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', parameters('vnetResourceGroup'), '/providers/Microsoft.Network/virtualNetworks/', parameters('vnetName'), '/subnets/', parameters('subnetName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat('vm', parameters('clusterName'), padLeft(copyIndex(), 2, '0'), '/Installation')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+	            "[concat('Microsoft.Compute/virtualMachines/', 'vm', parameters('clusterName'), padLeft(copyIndex(), 2, '0'))]"
+	            ],
+      "copy": {
+        "name": "foo",
+        "count": "[parameters('instanceCountPerSA')]"
+      },
+      "properties": {
+        "publisher": "Microsoft.OSTCExtensions",
+        "type": "CustomScriptForLinux",
+        "typeHandlerVersion": "1.4",
+        "settings": {
+          "fileUris": [ "[parameters('finaldeployScriptURI')]"
+           ],
+          "commandToExecute": "[concat('bash finaldeploy.sh',' ', parameters('masterHostName'),' ', parameters('hpcUserName'))]"
+        }
+      }
+    },
+    {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[concat('vm', parameters('clusterName'), padLeft(copyIndex(), 2, '0'))]",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "[concat('virtualMachineLoop', parameters('clusterName'))]",
+        "count": "[parameters('instanceCountPerSA')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', 'nic', parameters('clusterName'), padLeft(copyindex(), 2, '0'))]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computername": "[concat('vm', parameters('clusterName'), padLeft(copyIndex(), 2, '0'))]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "linuxConfiguration": "[variables('linuxConfiguration')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+              "publisher": "[parameters('ImagePublisher')]",
+              "offer": "[parameters('ImageOffer')]",
+              "sku": "[parameters('ImageSKU')]",
+              "version": "latest"
+          },
+          "osDisk": {
+            "name": "[concat(parameters('clusterName'),'-osDisk')]",
+            "caching": "ReadWrite",
+            "createOption": "FromImage",
+            "vhd": {
+              "uri": "[concat(parameters('baseVHDURI'), parameters('clusterName'), padLeft(copyIndex(), 2, '0'), '.vhd')]"
+            }
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',concat('nic', parameters('clusterName'), padLeft(copyindex(), 2, '0')))]"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
