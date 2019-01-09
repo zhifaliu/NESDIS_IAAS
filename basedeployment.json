@@ -106,7 +106,7 @@
       "name": "[concat( parameters('clusterName'), padLeft(copyIndex(), 2, '0'), '/Installation')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-	            "[concat('Microsoft.Compute/virtualMachines/', 'vm', parameters('clusterName'), padLeft(copyIndex(), 2, '0'))]"
+	            "[concat('Microsoft.Compute/virtualMachines/', parameters('clusterName'), padLeft(copyIndex(), 2, '0'))]"
 	            ],
       "copy": {
         "name": "foo",
