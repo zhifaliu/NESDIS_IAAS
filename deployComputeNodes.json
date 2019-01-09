@@ -1,0 +1,178 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01-preview/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "uniquePrefix": {
+            "defaultValue": "noaa",
+            "type": "String"
+        },
+        "numberOfSAs": {
+            "defaultValue": 1,
+            "type": "Int"
+        },
+        "instanceCountPerSA": {
+            "defaultValue": 2,
+            "type": "Int"
+        },
+        "vmSize": {
+            "defaultValue": "Standard_DS4_v2",
+            "allowedValues": [
+                "Standard_A1",
+                "Standard_DS4_v2",
+                "Standard_D14_v2",
+                "Standard_D15_v2"
+            ],
+            "type": "String",
+            "metadata": {
+                "description": "Size of the VMs to be used for actual computation."
+            }
+        },
+        "vnetResourceGroup": {
+            "defaultValue": "NOAA-NESDIS-SIGP",
+            "type": "String"
+        },
+        "vnetName": {
+            "defaultValue": "VNET-nesdis-sigp",
+            "type": "String"
+        },
+        "subnetName": {
+            "defaultValue": "Subnet-Trusted1",
+            "type": "String"
+        },
+        "adminUsername": {
+            "defaultValue": "azure-user",
+            "type": "String"
+        },
+        "authenticationType": {
+            "defaultValue": "sshPublicKey",
+            "allowedValues": [
+                "password",
+                "sshPublicKey"
+            ],
+            "type": "String",
+            "metadata": {
+                "description": "Authentication type for the virtual machines"
+            }
+        },
+        "adminPassword": {
+            "type": "SecureString"
+        },
+        "sshPublicKey": {
+            "defaultValue": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCdxNucB4Oju2RhmJnM6t8CT9hn0J/qb5wJes0nagoHGKNVA3mAbL6RhlhloJ1VIWPdiaVYHkqBQu9V92EFhl7E10wfxhxF8fkGPo7q+7MDcvs6XGCRGWibuf8Wumj81qnToNOj/OTEXSJn3I0QVhai/M8MjuiUZfdWrso1IJb1goSPLiZKaxAYqH/2eB6oOjPukJI3HkhAoiULm8pcpPzcVztIFWpj/6amqpb+/wmdMBKJFffqncAAL7rVoMmXhxQdtxXKx7R0uDsSD/EzN9/Z9BAvRMIwDWh2qvksVZ+i6TYDBL9msXqLGlIkMfBPJU2RjbLzZYDcr1c2+wrpG9UF imported-openssh-key",
+            "type": "String",
+            "metadata": {
+                "description": "SSH public key that will be included on all nodes. The OpenSSH public key can be generated with tools like ssh-keygen on Linux or OS X."
+            }
+        },
+        "masterHostName": {
+            "defaultValue": "sigpmaster",
+            "type": "String"
+        },
+        "hpcUserName": {
+            "defaultValue": "hpc",
+            "type": "String"
+        }
+    },
+    "variables": {
+        "templateLocation": "https://raw.githubusercontent.com/grandparoach/NewCluster/NOAA/",
+        "baseTemplateUri": "[concat(variables('templateLocation'), 'basedeployment.json')]",
+        "ImagePublisher": "OpenLogic",
+        "ImageOffer": "CentOS",
+        "ImageSKU": "7.4",
+        "location": "[resourceGroup().location]",
+        "finaldeployScriptURI": "https://raw.githubusercontent.com/zhifaliu/NESDIS_IAAS/master/finaldeploy.sh"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[concat(parameters('uniquePrefix'), padLeft(copyindex(), 2, '0'), 'sa')]",
+            "apiVersion": "2015-06-15",
+            "location": "[variables('location')]",
+            "copy": {
+                "name": "storageLoop",
+                "count": "[parameters('numberOfSAs')]"
+            },
+            "properties": {
+                "accountType": "Standard_LRS"
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "name": "[concat('clusterSet', copyindex())]",
+            "apiVersion": "2015-01-01",
+            "copy": {
+                "name": "deploymentLoop",
+                "count": "[parameters('numberOfSAs')]"
+            },
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('baseTemplateUri')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "uniquePrefix": {
+                        "value": "[parameters('uniquePrefix')]"
+                    },
+                    "clusterName": {
+                        "value": "[concat(parameters('uniquePrefix'), padLeft(copyindex(), 2, '0'))]"
+                    },
+                    "ImagePublisher": {
+                        "value": "[variables('ImagePublisher')]"
+                    },
+                    "ImageOffer": {
+                        "value": "[variables('ImageOffer')]"
+                    },
+                    "ImageSKU": {
+                        "value": "[variables('ImageSKU')]"
+                    },
+                    "baseVHDURI": {
+                        "value": "[concat('https://', parameters('uniquePrefix'), padLeft(copyindex(), 2, '0'), 'sa.blob.core.windows.net/vhds/')]"
+                    },
+                    "instanceCountPerSA": {
+                        "value": "[parameters('instanceCountPerSA')]"
+                    },
+                    "vmSize": {
+                        "value": "[parameters('vmSize')]"
+                    },
+                    "vnetName": {
+                        "value": "[parameters('vnetName')]"
+                    },
+                    "vnetResourceGroup": {
+                        "value": "[parameters('vnetResourceGroup')]"
+                    },
+                    "subnetName": {
+                        "value": "[parameters('subnetName')]"
+                    },
+                    "location": {
+                        "value": "[variables('location')]"
+                    },
+                    "masterHostName": {
+                        "value": "[parameters('masterHostName')]"
+                    },
+                    "hpcUserName": {
+                        "value": "[parameters('hpcUserName')]"
+                    },
+                    "finaldeployScriptURI": {
+                        "value": "[variables('finaldeployScriptURI')]"
+                    },
+                    "adminUsername": {
+                        "value": "[parameters('adminUsername')]"
+                    },
+                    "adminPassword": {
+                        "value": "[parameters('adminPassword')]"
+                    },
+                    "sshPublicKey": {
+                        "value": "[parameters('sshPublicKey')]"
+                    },
+                    "authenticationType": {
+                        "value": "[parameters('authenticationType')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Storage/storageAccounts/', parameters('uniquePrefix'), padLeft(copyindex(), 2, '0'), 'sa')]"
+            ]
+        }
+    ]
+}
