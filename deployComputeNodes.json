@@ -7,10 +7,12 @@
       "defaultValue": "noaa"
     },
     "numberOfSAs": {
-      "type": "int"
+      "type": "int",
+      "defaultValue": 1
     },
     "instanceCountPerSA": {
-      "type": "int"
+      "type": "int",
+      "defaultValue": 2
     },
     "vmSize": {
       "type": "string",
