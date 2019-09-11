@@ -1,4 +1,4 @@
-# Premium-NFS-Server
+# SIGP framework on Azure
 Template for Deploying an NFS Server with Premium Storage and Accelerated Networking.
 
 You must specify an existing VNet/Subnet for it to attach to.
